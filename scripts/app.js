@@ -1,0 +1,275 @@
+
+'use strict';
+
+var weave = window.weave || {};
+
+(function () {
+  var app = document.getElementById('app');
+
+  /**
+   * Listen for event when template gets attached to the page and bind event
+   * handlers
+   */
+  app.addEventListener('dom-change', function () {
+    var signIn = document.querySelector('google-signin');
+    signIn.addEventListener('google-signin-success', app.signedIn.bind(this));
+    signIn.addEventListener('google-signed-out', app.signedOut.bind(this));
+  });
+
+  /**
+   * Handle sign in and start api discovery process
+   */
+  app.signedIn = function () {
+    // window.location.href="http://localhost:8080/home.html";
+    gapi.client.weave.devices.list().then(function (resp) {
+      app.set('devices', resp.result.devices);
+      alert(resp.result.devices);
+      /*alert("hello");
+      var cb = new ClearBlade();
+
+      var initOptions = {
+        URI : "https://p1.clearblade.com",
+        messagingURI : "p1.clearblade.com",
+        messagingPort: 8904,
+        useMQTT: true,
+        cleanSession: true,
+        systemKey: "c8f5baed0ab4adf9e6fea491f125",
+        systemSecret: "C8F5BAED0AB68FFB81FB95C9C6E001",
+        email:"test@clearblade.com",
+        password:"clearblade"        
+      }
+
+      var callback = function(err, data) {
+        if (err){
+            alert("error");
+        }else{
+            alert("done");
+        }
+    }
+
+    var authCallback = function(err, data){
+      var params = {  city: resp.result.devices };
+      //alert(resp.result.devices);
+      cb.Code().execute("DeviceService", params, callback);  
+    }
+
+    initOptions.callback = authCallback;
+    cb.init(initOptions);*/
+    
+    });
+  };
+
+  app.authorizeNewDevices = function() {
+    var ajax = document.getElementById('ajax');
+    var token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
+    var authHeader = {"Authorization": "Bearer " + token.access_token};
+    ajax.headers = authHeader;
+    ajax.generateRequest();
+  };
+
+  app.ajaxHandler = function() {
+    var ajax = document.getElementById('ajax');
+    var weaveToken = ajax.lastResponse.token;
+    var authLocation = 'https://weave.google.com/manager/share?role=user&token=' +
+     weaveToken + '&redirect_url=' + encodeURIComponent(location.origin);
+    var windowFeatures = 'menubar=no,location=no,height=600,width=450,chrome=yes,centerscreen=yes,alwaysRaised=yes';
+    app.authWindow = window.open(authLocation, "Weave Device Authorization", windowFeatures);
+  };
+
+  /**
+   * Handle sign out and clear devices
+   */
+  app.signedOut = function () {
+    app.set('devices', null);
+  };
+
+  /**
+   * Load discovery json and get a list of devices
+   */
+  app.loadDiscovery = function () {
+    gapi.client.load(weaveDiscovery, 'v1')
+        .then(function () {
+          console.log('gapi loaded');
+        }, function () {
+          console.log('gapi error');
+        })
+  };
+
+  /**
+   * Helper method to recurse through the JSON object and pull out commandDef strings.
+   *
+   * @param currElement {Object} current object
+   * @param key {String} key of current object
+   * @param path {String} string containing key path to object
+   * @returns {Array} of objects defining the commandDef and parameters
+   */
+  app.getCommandDefs = function (currElement) {
+    if (currElement.commandDefs) {
+      console.log('parsing command defs');
+      return app.recurseCommandDefs(currElement.commandDefs);
+    } else if(currElement.traits) {
+      console.log('parsing components');
+      var commands = [];
+      for (var prop in currElement.traits) {
+        if (currElement.traits.hasOwnProperty(prop)) {
+          commands = commands.concat(app.parseTraits(currElement.traits[prop], prop));
+        }
+      }
+      return commands;
+    }
+  };
+
+  app.recurseCommandDefs = function (currElement, key, path) {
+    var commands = [];
+    if (!path) {
+      path = [];
+    }
+    var currPath = path.slice();
+    if (key) {
+      currPath.push(key);
+    }
+    if (currElement.kind && currElement.kind === "weave#commandDef") {
+      var parameters = [];
+      for (var param in currElement.parameters) {
+        currElement.parameters[param].parameter = param;
+        parameters.push(currElement.parameters[param]);
+      }
+      commands.push({
+        'command': currPath.join('.'),
+        'parameters': parameters
+      });
+    } else {
+      for (var currKey in currElement) {
+        Array.prototype.splice.apply(
+            commands, [commands.length, 0].concat(
+                app.recurseCommandDefs(currElement[currKey], currKey, currPath)));
+      }
+    }
+    return commands;
+  };
+
+  app.parseTraits = function(currElement, key, path) {
+    var outputCommands = [];
+
+    if (!path) {
+      path = [];
+    }
+
+    var currPath = path.slice();
+
+    if (key) {
+      currPath.push(key);
+    }
+
+    var commands;
+    if (currElement.commands) {
+      commands = currElement.commands;
+    }
+
+    for (var command in commands) {
+      if (commands.hasOwnProperty(command)) {
+        outputCommands.push({
+          'command': currPath.join('.') + '.' + command,
+          'parameters': commands[command].parameters
+        })
+      }
+    }
+
+    return outputCommands;
+  };
+  /**
+   * Checks if the current commandDef is _ledflasher._set
+   *
+   * @param param {String} commandDef string
+   * @returns {boolean} if the commandDef string matches _ledflasher._set
+   */
+  app.isSet = function (param) {
+    return (param.command === "_ledflasher._set" || param.command === "_ledflasher.set");
+  };
+
+  /**
+   * Checks if the current led on the device is on
+   *
+   * @param device {Object} device to check against
+   * @param id {Number} id of led
+   * @returns {Boolean} true if the device led is on
+   */
+  app.isActive = function (device, id) {
+    return device.state._ledflasher._leds[id - 1];
+  };
+
+  /**
+   * Returns true if the device is offline
+   *
+   * @param device {Object} device to check against
+   * @returns {boolean} true if device connectionStatus is offline
+   */
+  app.isOffline = function (device) {
+    return device.connectionStatus === "offline"
+  };
+
+  /**
+   * Converts the range of led ids into an array of led objects
+   *
+   * @param param {Object} commandDef parameters
+   * @returns {Array} of objects in the following format
+   * {
+ *   'command': [command],
+ *   'id': [id of led]
+ * }
+   */
+  app.rangeToArray = function (param, device) {
+    var leds = [];
+    if(device.components) {
+      for (i = param.parameters.led.minimum; i <= param.parameters.led.maximum; i++) {
+        leds.push({
+          'command': param.command,
+          'id': i,
+          'state': device.components.ledflasher.state._ledflasher.leds[i - 1]
+        });
+      }
+    } else if (device.state) {
+      for (var i = param.parameters[0].minimum; i <= param.parameters[0].maximum; i++) {
+        leds.push({
+          'command': param.command,
+          'id': i,
+          'state': device.state._ledflasher._leds[i - 1]
+        });
+      }
+    }
+    return leds;
+  };
+
+  /**
+   * Sends a request to toggle the led triggering the event
+   *
+   * @param event {Event}
+   */
+  app.toggleLed = function (event) {
+    var commandParameter = {
+      'deviceId': event.target.device,
+      'name': event.target.command,
+      'parameters': {
+        '_led': event.target._led,
+        '_on': event.target.active
+      }
+    };
+    gapi.client.weave.commands.insert(commandParameter).then(function (resp) {
+      console.log('success' + JSON.stringify(resp));
+    }, function (resp) {
+      console.log('failure' + JSON.stringify(resp));
+    });
+  };
+
+  window.addEventListener("message", function(event) {
+    console.log(event);
+  }, false);
+  weave.app = app;
+})();
+
+
+function gapiLoaded() {
+  weave.app.loadDiscovery();
+}
+
+

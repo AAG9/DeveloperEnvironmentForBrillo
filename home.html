@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Developer Environment for Brillo and Weave - Home</title>
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="scripts/weave-discovery.js"></script>
+
+  <link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+  <link rel="import" href="bower_components/paper-card/paper-card.html">
+  <link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">
+  <link rel="import" href="bower_components/google-signin/google-signin.html">
+  <link rel="import" href="bower_components/paper-styles/typography.html">
+  <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+  <link rel="import" href="bower_components/paper-button/paper-button.html">
+  <link rel="import" href="bower_components/paper-menu-button/paper-menu-button.html">
+  <link rel="import" href="bower_components/paper-menu-button/paper-menu-button-animations.html">
+  <link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
+  <link rel="import" href="bower_components/font-roboto/roboto.html">
+
+  
+
+  <link rel="stylesheet" type="text/css" href="styles/styles.css" media="screen">
+
+</head>
+
+<body class="fullbleed layout vertical">
+<span id="browser-sync-binding"></span>
+<template is="dom-bind" id="app">
+  
+  <paper-header-panel mode="waterfall" class="blue">
+  	<div class="paper-header">
+  		<div id="mainnav">
+  		
+            <ul>
+              <li><a href="index.html">Weave Developer Environment</a></li>
+          	</ul>
+
+        </div>
+    </div>
+  </paper-header-panel>
+<paper-menu-button>
+		  <paper-icon-button icon="menu" class="dropdown-trigger"></paper-icon-button>
+		  <paper-menu class="dropdown-content">
+		    <paper-item>Share</paper-item>
+		    <paper-item>Settings</paper-item>
+		    <paper-item>Help</paper-item>
+		  </paper-menu>
+		</paper-menu-button>
+
+
+<div id="footer">
+     <p style=" text-align:center; margin-top:20px;">&copy;Copyright 2016 | All Rights Reserved | About Us | <a href="support.html">Contact</a> | Privacy | Terms Of Use | <a href="support.html">Feedback</a></p>
+</div>
+
+</template>
+<!-- <script src="scripts/mqtt.js"></script> -->
+<script src="scripts/app.js"></script>
+<script src="scripts/lib/ClearBlade.js"></script>
+<!-- <script src="scripts/lib/mqttws31.js"></script> -->
+<script src="https://apis.google.com/js/client.js?onload=gapiLoaded"></script>
+
+</body>
+</html>
+

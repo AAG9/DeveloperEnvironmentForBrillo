@@ -1,0 +1,86 @@
+body { background-color:#F5F5F5; width:100%; font-family: 'Roboto', sans-serif; color: white;}
+
+    
+#mainnav ul li { 
+  display:inline; 
+  list-style-type:none; 
+  margin-left: 20px; 
+  margin-right:10px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+#mainnav a:link { text-decoration:none; background-color:transparent; color:#FFF; padding: 20px 20px 20px 20px}
+
+google-signin {
+  position: relative;
+  right: -500px
+}
+
+paper-button {
+  background-color: var(--paper-blue-500);
+  color: white;
+  @apply(--paper-font-common-base);
+}
+
+paper-card {
+  @apply(--paper-font-common-base);
+  margin: 10px 10px;
+}
+
+core-item.core-selected {
+  color: red;
+}
+
+paper-menu-button{
+  --paper-menu-button{
+    color: black;
+    background-color: green;
+  }
+}
+
+paper-toolbar.main{
+      background-color: #1976D2;
+}
+
+
+paper-toolbar.drawer{
+      background-color: #E91E63;
+}
+
+.index a:link { text-decoration:none; background-color:transparent; color:white;}
+.index a:visited { background-color:transparent; color:white; }
+.index a:hover { color:white; }
+.index a:focus {  color:white;}
+
+.paper-header{
+    height: 90px;
+    font-size: 16px;
+    line-height: 60px;
+    color: white;
+    transition: height 0.2s;
+    background-color: #1976D2;
+}
+
+paper-drawer-panel {
+  --paper-drawer-panel-main-container: {
+    background-color: gray;
+  };
+}
+
+paper-menu{
+  color: black;
+}
+
+/*3F51B5*/
+#footer { clear:both; background-color: #757575; padding:15px 0;  width:100%;
+  height:40px;
+  position:absolute;
+  bottom:0;
+  left:0;}
+
+
+#footer a:link { text-decoration:none; background-color:transparent; color:white;}
+#footer a:visited { background-color:transparent; color:white; }
+#footer a:hover { color:black; }
+#footer a:focus {  color:black;}
