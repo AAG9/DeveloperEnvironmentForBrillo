@@ -1,4 +1,4 @@
-body { background-color:#F5F5F5; width:100%; font-family: 'Roboto', sans-serif; color: white;}
+body { background-color:#FAFAFA; font-family: 'Roboto', sans-serif; color: white;}
 
     
 #mainnav ul li { 
@@ -46,6 +46,19 @@ paper-toolbar.main{
 
 paper-toolbar.drawer{
       background-color: #E91E63;
+}
+
+h3{
+  margin-left: 20px;
+  padding-top: 5px;
+}
+
+paper-material{
+  color: black;
+  height: 200px;
+  width: 500px;
+  margin-left: 100px;
+  background-color: white;
 }
 
 .index a:link { text-decoration:none; background-color:transparent; color:white;}

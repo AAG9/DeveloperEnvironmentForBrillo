@@ -17,6 +17,7 @@
   <link rel="import" href="bower_components/paper-styles/typography.html">
   <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
   <link rel="import" href="bower_components/paper-button/paper-button.html">
+  <link rel="import" href="bower_components/paper-scroll-header-panel/paper-scroll-header-panel">
   <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="bower_components/paper-menu-button/paper-menu-button.html">
   <link rel="import" href="bower_components/paper-menu-button/paper-menu-button-animations.html">
@@ -24,13 +25,14 @@
   <link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
   <link rel="import" href="bower_components/font-roboto/roboto.html">
   <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+  <link rel="import" href="bower_components/iron-pages/iron-pages.html">
   <link rel="import" href="bower_components/paper-styles/paper-styles.html">
   <link rel="import" href="bower_components/paper-fab/paper-fab.html">
   <link rel="import" href="bower_components/polymer/polymer.html">
   <link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
   <link rel="import" href="bower_components/paper-menu/paper-menu.html">
   <link rel="import" href="bower_components/paper-menu/paper-submenu.html">
-
+  <link rel="import" href="bower_components/paper-material/paper-material.html">
 
 
   <link rel="stylesheet" type="text/css" href="styles/styles.css" media="screen">
@@ -39,20 +41,21 @@
 </head>
 
 <body>
-
+<span id="browser-sync-binding"></span>
+<template is="dom-bind" id="app">
 <paper-drawer-panel>
 	<paper-header-panel drawer>
 		<paper-toolbar class="drawer">
 			<div><iron-icon icon="icons:account-circle"></iron-icon></div>
-			<span>Hello</span>
-		</paper-toolbar>
+				<span id="afterSignIn"></span>
+			</paper-toolbar>
 		<paper-menu>
-		  	<paper-submenu>
-		    	<paper-item class="menu-trigger"> Your Devices</paper-item>
+		  	<paper-submenu attr-for-selected="data-route" selected="[[route]]">
+		    	<paper-item class="menu-trigger"><iron-icon icon="icons:view-list"></iron-icon><span>Your Devices</span></paper-item>
 		    	<paper-menu class="menu-content">
-			      <paper-item>Topic 1</paper-item>
-			      <paper-item>Topic 2</paper-item>
-			      <paper-item>Topic 3</paper-item>
+				<template is="dom-repeat" items="{{devices}}" as="device">
+			      <paper-item><a data-route="devices"><span>[[device.name]]</span></a></paper-item>
+			    </template>
 		    	</paper-menu>
 		  	</paper-submenu>
 		 </paper-menu>
@@ -61,15 +64,42 @@
 		<paper-toolbar class="main">
 			<paper-icon-button icon="menu" paper-drawer-toggle ></paper-icon-button>
 			<span title class="index"><a href="/index.html"> Weave Developer Environment</a></span>
-			<google-signin theme="dark"
+			<google-signin theme="dark" 
 					client-id="165865624182-pg2if7mu45fr5lr9j9n6jlj9e9g9eqd5.apps.googleusercontent.com"
 					scopes="https://www.googleapis.com/auth/weave.app">
     		</google-signin>
 		</paper-toolbar>
-		<h1>Hello</h1>
-		<div id="footer">
-     		<p style=" text-align:center; margin-top:13px;">&copy;Copyright 2016 | All Rights Reserved | About Us | <a href="support.html">Contact</a> | Privacy | Terms Of Use | <a href="support.html">Feedback</a></p>
+		<div id="main">
+		<iron-pages attr-for-selected="data-route" selected="devices">
+		<section>
+		<paper-material elevation="1">
+			<p>Hello</p>
+		</paper-material>
+		</section>
+		<section data-route="devices">
+             <template is="dom-repeat" items="{{devices}}" as="device">
+	              <paper-material elevation="1">
+	                <h3 class="page-title">[[device.name]]</h3>
+				      <div>
+				      <ul style="list-style-type:none">
+				      <li>Device Kind: [[device.kind]]</li>
+				      <li>Device Id: [[device.id]]</li>
+				      <li>Device Name: [[device.name]]</li>
+				      <li>Device Owner: [[device.owner]]</li>
+				      <li>Last Seen Time: [[device.lastSeenTimeMs]]</li>
+				      <li>Last Use Time: [[device.lastUseTimeMs]]</li>
+				      <li>Device state: [[device.state._ledflasher._leds]]</li>
+				      </ul>
+				      </div>
+	              </paper-material>
+              </template>
+            </section>
 		</div>
+		</iron-pages>
+
+		<!-- <div id="footer">
+     		<p style=" text-align:center; margin-top:13px;">&copy;Copyright 2016 | All Rights Reserved | About Us | <a href="support.html">Contact</a> | Privacy | Terms Of Use | <a href="support.html">Feedback</a></p>
+		</div> -->
 	</div>
 	<iron-ajax
           url="https://www.googleapis.com/weave/v1/authorizedApps/createAppAuthenticationToken"
@@ -79,8 +109,10 @@
           on-response="ajaxHandler"
           id="ajax">
     </iron-ajax>
+
   </div>
 </paper-drawer-panel>
+</template>
 <script src="scripts/app.js"></script>
 <script src="https://apis.google.com/js/client.js?onload=gapiLoaded"></script>
 </body>

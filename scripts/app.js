@@ -22,40 +22,17 @@ var weave = window.weave || {};
   app.signedIn = function () {
     // window.location.href="http://localhost:8080/home.html";
     gapi.client.weave.devices.list().then(function (resp) {
+      var userEmail = gapi.auth2.getAuthInstance().currentUser.get().wc.hg;
+      //console.log(userEmail);
+      document.getElementById('afterSignIn').innerHTML = userEmail;
       app.set('devices', resp.result.devices);
-      alert(resp.result.devices);
-      /*alert("hello");
-      var cb = new ClearBlade();
-
-      var initOptions = {
-        URI : "https://p1.clearblade.com",
-        messagingURI : "p1.clearblade.com",
-        messagingPort: 8904,
-        useMQTT: true,
-        cleanSession: true,
-        systemKey: "c8f5baed0ab4adf9e6fea491f125",
-        systemSecret: "C8F5BAED0AB68FFB81FB95C9C6E001",
-        email:"test@clearblade.com",
-        password:"clearblade"        
-      }
-
-      var callback = function(err, data) {
-        if (err){
-            alert("error");
-        }else{
-            alert("done");
-        }
-    }
-
-    var authCallback = function(err, data){
-      var params = {  city: resp.result.devices };
-      //alert(resp.result.devices);
-      cb.Code().execute("DeviceService", params, callback);  
-    }
-
-    initOptions.callback = authCallback;
-    cb.init(initOptions);*/
-    
+      // alert(resp.result.devices[1].kind);
+      /*window.onload = function() {
+        alert("in")
+        var deviceInfo = JSON.stringify(resp.result.devices[0]);
+        console.log(deviceInfo);
+        document.getElementById('loadDeviceInfo').innerHTML = deviceInfo;
+      } */
     });
   };
 
@@ -81,6 +58,7 @@ var weave = window.weave || {};
    */
   app.signedOut = function () {
     app.set('devices', null);
+    document.getElementById('afterSignIn').innerHTML = null;
   };
 
   /**
@@ -227,6 +205,7 @@ var weave = window.weave || {};
           'id': i,
           'state': device.components.ledflasher.state._ledflasher.leds[i - 1]
         });
+        
       }
     } else if (device.state) {
       for (var i = param.parameters[0].minimum; i <= param.parameters[0].maximum; i++) {
