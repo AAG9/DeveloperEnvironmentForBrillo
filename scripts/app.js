@@ -3,9 +3,11 @@
 
 var weave = window.weave || {};
 
+
 (function () {
   var app = document.getElementById('app');
 
+  app.baseUrl = '/';
   /**
    * Listen for event when template gets attached to the page and bind event
    * handlers
@@ -25,7 +27,15 @@ var weave = window.weave || {};
       var userEmail = gapi.auth2.getAuthInstance().currentUser.get().wc.hg;
       //console.log(userEmail);
       document.getElementById('afterSignIn').innerHTML = userEmail;
+
       app.set('devices', resp.result.devices);
+
+      var name = gapi.auth2.getAuthInstance().currentUser.get().wc.wc;
+      document.getElementById('name').innerHTML = name;
+
+      var totalResults = resp.result.totalResults
+      document.getElementById('totalDevices').innerHTML = " - "+totalResults;
+      // alert(resp.result.totalResults);
       // alert(resp.result.devices[1].kind);
       /*window.onload = function() {
         alert("in")
@@ -34,6 +44,39 @@ var weave = window.weave || {};
         document.getElementById('loadDeviceInfo').innerHTML = deviceInfo;
       } */
     });
+  };
+
+  window.addEventListener('paper-header-transform', function(e) {
+    var appName = Polymer.dom(document).querySelector('#mainToolbar .app-name');
+    var middleContainer = Polymer.dom(document).querySelector('#mainToolbar .middle-container');
+    var bottomContainer = Polymer.dom(document).querySelector('#mainToolbar .bottom-container');
+    var detail = e.detail;
+    var heightDiff = detail.height - detail.condensedHeight;
+    var yRatio = Math.min(1, detail.y / heightDiff);
+    // appName max size when condensed. The smaller the number the smaller the condensed size.
+    var maxMiddleScale = 0.50;
+    var auxHeight = heightDiff - detail.y;
+    var auxScale = heightDiff / (1 - maxMiddleScale);
+    var scaleMiddle = Math.max(maxMiddleScale, auxHeight / auxScale + maxMiddleScale);
+    var scaleBottom = 1 - yRatio;
+
+    // Move/translate middleContainer
+    Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
+
+    // Scale bottomContainer and bottom sub title to nothing and back
+    Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
+
+    // Scale middleContainer appName
+    Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
+  });
+
+  // Scroll page to top and expand header
+  app.scrollPageToTop = function() {
+    app.$.headerPanelMain.scrollToTop(true);
+  };
+
+  app.closeDrawer = function() {
+    app.$.paperDrawerPanel.closeDrawer();
   };
 
   app.authorizeNewDevices = function() {
