@@ -77,7 +77,7 @@
 
           <paper-menu class="menu-content">
           <template is="dom-repeat" items="{{devices}}" as="device">
-            <paper-item><div>[[device.name]]</div></paper-item>
+            <a href="{{baseUrl}}users"><paper-item><div>[[device.name]]</div></paper-item></a>
           </template>
           </paper-menu>
           </paper-submenu>
